@@ -11,7 +11,7 @@ $result = mysqli_query($con,"SELECT * FROM mytable ORDER BY plaats, adres");
 $i = 0;
 while($row = mysqli_fetch_array($result))
   {
-  if ($i >40 && $i <50 ){
+  if ($i >0 && $i <15 ){
   // check for coordinates. Google Maps doesn't like getting too manny questions so change the edge values of $i to ask again.
    $coordinate=geocoding($row['adres'].", ".$row['plaats'].", "."Haarlemmermeer" );
    //add a new row:
