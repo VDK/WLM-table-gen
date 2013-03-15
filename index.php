@@ -20,7 +20,7 @@ $result = mysqli_query($con,"SELECT * FROM molenwaard2 ORDER BY kolom3, adres");
 $i = 0;
 while($row = mysqli_fetch_array($result))
   {
-  if ($i >$j*10 && $i <$j*10+10 ){
+  if ($i >=$j*10 && $i <$j*10+10 ){
    $coordinate=geocoding($row['adres'].", ".$row['huisnr'].", ".$row['kolom3'] );
    createRow(
    $row['beschrijving'] ,               //object
