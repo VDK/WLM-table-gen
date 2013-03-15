@@ -1,4 +1,4 @@
-<form method="get">
+<form method="get"style="-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
 <input type="hidden" name="j" value="<?php 
 if (empty($_GET)) {
     echo 1;
@@ -8,12 +8,7 @@ else {
   $j=$_GET['j'];
   echo $j+1;
 }
-?>"/>
-<input type="submit" value=">next 10>"/>
-</form>
-
-
-<?php
+?>"/><input type="submit" value=">next 10>"/></form><?php
 
 // Create connection
 $con=mysqli_connect("127.0.0.1","root","","test");
@@ -64,7 +59,6 @@ function geocoding($address){
 
 function createRow($object, $bouwjaar, $architect,$adres,$postcode,$plaats,$lat,$lon,$gemcode,$objnr,$MIP_nr,$kadaster,$rijksmonument,$aangewezen,$oorspr_fun,$url){
 ?>
-<?php echo "<br/>";?>
 {{Tabelrij gemeentelijk monument
 | object =<?php echo $object?>
 | bouwjaar =<?php echo $bouwjaar;?>
@@ -85,6 +79,7 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$plaats,$lat,
 | commonscat=
 | image=
 }}
+<?php echo "<br/>";?>
 <?php
 
 
