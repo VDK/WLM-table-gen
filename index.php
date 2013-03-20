@@ -60,12 +60,12 @@ function geocoding($address){
 function createRow($object, $bouwjaar, $architect,$adres,$postcode,$plaats,$lat,$lon,$gemcode,$objnr,$MIP_nr,$kadaster,$rijksmonument,$aangewezen,$oorspr_fun,$url){
 ?>
 {{Tabelrij gemeentelijk monument
-| object =<?php echo $object?>
+| object =<?php echo ucfirst($object);?>
 | bouwjaar =<?php echo $bouwjaar;?>
 | architect =<?php echo $architect;?>
 | adres =<?php echo $adres;?>
 | postcode =<?php echo $postcode;?>
-| plaats =<?php echo $plaats;?>
+| plaats =<?php echo ucfirst($plaats);?>
 | lat =<?php echo $lat;?>
 | lon =<?php echo $lon;?>
 | gemcode =<?php echo $gemcode;?>
@@ -79,8 +79,8 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$plaats,$lat,
 | commonscat=
 | image=
 }}
-<?php echo "<br/>";?>
-<?php
+<?php 
+echo "<br/>&lt;!-- --&gt;<br/>";
 
 
 }
