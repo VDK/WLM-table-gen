@@ -42,6 +42,9 @@ while($row = mysqli_fetch_array($result))
    }
    $i++;
   }
+  
+  
+  //<!-- Don't edit below this line unless you know what you're doing -->
 function geocoding($address){
   $address = rawurlencode($address);
   $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
