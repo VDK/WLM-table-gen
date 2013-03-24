@@ -5,4 +5,4 @@ This is a small script to generate Wiki tables of _gemeentelijke monumenten_ out
 
 There is a step-by-step guide in Dutch here:
 
-https://docs.google.com/file/d/0B0QItG8OyBLrUi1fQ3lfSDJOZ0U/edit?usp=sharing
+https://docs.google.com/file/d/0B0QItG8OyBLrSDJSWG9ZWWE4RWc/edit?usp=sharing
