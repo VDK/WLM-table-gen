@@ -41,7 +41,6 @@ while($row = mysqli_fetch_array($result))
      '',                                 //architect
      $row['adres'],                       //adres
      "",                                  //postcode
-     $row['plaats'],                      //plaats
      $coordinate['lat'],                  //lat
      $coordinate['long'],                 //long
      "1509",                              //gemcode
@@ -82,7 +81,7 @@ De plaats [[<?php echo $city;?>]] kent <?php echo $count;?> gemeentelijke monume
 <?php
 }
 
-function createRow($object, $bouwjaar, $architect,$adres,$postcode,$plaats,$lat,$lon,$gemcode,$objnr,$MIP_nr,$kadaster,$rijksmonument,$aangewezen,$oorspr_fun,$url){
+function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$gemcode,$objnr,$MIP_nr,$kadaster,$rijksmonument,$aangewezen,$oorspr_fun,$url){
 ?>
 {{Tabelrij gemeentelijk monument
 | object =<?php echo ucfirst($object);?>
@@ -90,7 +89,6 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$plaats,$lat,
 | architect =<?php echo $architect;?>
 | adres =<?php echo $adres;?>
 | postcode =<?php echo $postcode;?>
-| plaats =<?php echo ucfirst($plaats);?>
 | lat =<?php echo $lat;?>
 | lon =<?php echo $lon;?>
 | gemcode =<?php echo $gemcode;?>
