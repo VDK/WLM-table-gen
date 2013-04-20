@@ -3,6 +3,9 @@
 $table='rheden'; // the name of the table in the DB
 $GLOBALS['gemeente'] ="Rheden";
 $GLOBALS['provincie'] = "Gelderland";
+//don't edit these variables:
+$previousPlace = "";
+$j = pageCount(); //GET page count
 
 // Create connection
 $con=mysqli_connect("127.0.0.1","root","","test");
@@ -10,23 +13,18 @@ $con=mysqli_connect("127.0.0.1","root","","test");
 // Check connection
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
 
-//GET page count
-$j = pageCount();
-
 //get count per place
 $result = mysqli_query($con,"SELECT plaats, COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY plaats;");
 
 while($row = mysqli_fetch_array($result)){
   $cities[(string)$row['plaats']]=  $row['num'];
 }
+
 //select all the things
 $result = mysqli_query($con,"SELECT * FROM ".$table." ORDER BY plaats, nummer");
 
-
 //creating the actual table
 $i = 0;
-$previousPlace = "";
-
 while($row = mysqli_fetch_array($result))
   {
   if ($i ==0 && $j == 0){
@@ -42,7 +40,7 @@ while($row = mysqli_fetch_array($result))
     createRow(
      $row['object'],                      //object
      "",                                  //bouwjaar
-     "",                                 //architect
+     "",                                  //architect
      $row['adres'],                       //adres
      $row['postcode'],                    //postcode
      $coordinate['lat'],                  //lat
