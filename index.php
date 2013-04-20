@@ -32,7 +32,7 @@ while($row = mysqli_fetch_array($result))
   }
   if ($i >=$j*10 && $i <$j*10+10 ){
     if ($previousPlace != $row['plaats']){
-      if ($j != 0 || $i != 0){ echo "|}</br>";}  // closes previous table
+      if ($j != 0 || $i != 0){ echo "|}<br/>";}  // closes previous table
       createTableStart($row['plaats'],$cities[$row['plaats']]);
     }
         
