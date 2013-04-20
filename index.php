@@ -1,8 +1,8 @@
 <?php
 //Set up variables
-$table='oudijs'; // the name of the table in the DB
-$GLOBALS['gemeente'] ="Oude IJsselstreek";
-$GLOBALS['iso'] = "nl-ov";
+$table='rheden'; // the name of the table in the DB
+$GLOBALS['gemeente'] ="Rheden";
+$GLOBALS['provincie'] = "Gelderland";
 
 // Create connection
 $con=mysqli_connect("127.0.0.1","root","","test");
@@ -14,13 +14,13 @@ if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_c
 $j = pageCount();
 
 //get count per place
-$result = mysqli_query($con,"SELECT plaats, COUNT(DISTINCT adres) AS 'num' FROM ".$table." GROUP BY plaats;");
+$result = mysqli_query($con,"SELECT plaats, COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY plaats;");
 
 while($row = mysqli_fetch_array($result)){
   $cities[(string)$row['plaats']]=  $row['num'];
 }
 //select all the things
-$result = mysqli_query($con,"SELECT * FROM ".$table." ");
+$result = mysqli_query($con,"SELECT * FROM ".$table." ORDER BY plaats, nummer");
 
 
 //creating the actual table
@@ -29,35 +29,45 @@ $previousPlace = "";
 
 while($row = mysqli_fetch_array($result))
   {
+  if ($i ==0 && $j == 0){
+    printHeader(mysqli_num_rows($result));
+  }
   if ($i >=$j*10 && $i <$j*10+10 ){
     if ($previousPlace != $row['plaats']){
-      if ($j != 0 || $i != 0){ echo "|}</br>";}
+      if ($j != 0 || $i != 0){ echo "|}</br>";}  // closes previous table
       createTableStart($row['plaats'],$cities[$row['plaats']]);
     }
-    $coordinate=geocoding($row['adres'].' '.$row['plaats']   );
+        
+    $coordinate=geocoding($row['adres'].', '.$row['postcode'].', '.$row['plaats']   );
     createRow(
      $row['object'],                      //object
-     '',                                  //bouwjaar
-     '',                                 //architect
+     "",                                  //bouwjaar
+     "",                                 //architect
      $row['adres'],                       //adres
-     "",                                  //postcode
+     $row['postcode'],                    //postcode
      $coordinate['lat'],                  //lat
      $coordinate['long'],                 //long
-     "1509",                              //gemcode
-     $row['idnr'],                        //objnr
+     "0275",                              //gemcode
+     $row['nummer'],                      //objnr
      "",                                  //MIP_nr
      "",                                  //kadaster
      "",                                  //rijksmonument nummer
      "",                                  //datum aangewezen
-     "",                                  //oorspronkelijke functie
+     "",                                  //oorspronkelijk doel van gebruik
      "");                                 //bron URL
+     if (($i+1) == mysqli_num_rows($result)){
+      printFooter();
+     }
     }
     $previousPlace = $row['plaats'];
     $i++;
   }
   
-//Don't edit below this line unless you know what you're doing
+
   
+//Don't edit below this line unless you know what you're doing
+
+ 
 function geocoding($address){
   $address = rawurlencode($address);
   $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
@@ -74,10 +84,11 @@ function geocoding($address){
 }
 
 function createTableStart($city, $count){
+$city= ucfirst($city);
 ?>
 ==<?php echo $city;?>==<br/>
-De plaats [[<?php echo $city;?>]] kent <?php echo $count;?> gemeentelijke monumenten:<br/>
-{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo $GLOBALS['iso'];?>|gemeente=[[<?php echo $GLOBALS['gemeente'];?>]]}}<br/>
+De plaats [[<?php echo $city;?>]] kent <?php echo $count; if ($count ==1){ echo " gemeentelijk monument";} else { echo " gemeentelijke monumenten";}?>:<br/>
+{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo getISO();?>|gemeente=[[<?php echo $GLOBALS['gemeente'];?>]]}}<br/>
 <?php
 }
 
@@ -106,12 +117,34 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$ge
 
 echo "<br/>&lt;!-- --&gt;<br/>";
 }
+function printHeader($num_monuments){
+?>
+De [[Nederlandse gemeente|gemeente]] [[<?php echo $GLOBALS['gemeente'];?>]] kent <?php echo $num_monuments; ?> gemeentelijke monumenten, hieronder een overzicht. 
+Zie ook de [[Lijst van rijksmonumenten in <?php echo $GLOBALS['gemeente']."|rijksmonumenten in ".$GLOBALS['gemeente']."]].<br/>";
+
+
+}
+
+function printFooter(){
+$gem = $GLOBALS['gemeente'];
+?>
+|}<br/>
+{{Commonscat|Gemeentelijke monumenten in <?php echo $gem."}}"; 
+?><br/>
+{{Appendix|2=*{{Cite web|url= |title=Monumenten|publisher=[[<?php echo $gem."|"."Gemeente"." ".$gem;?>]]|accessdate=<?php echo date('j-M-Y');?>}}<br/>
+----<br/>
+{{references}}}}<br/>
+[[Categorie:<?php echo $gem;?>]]<br/>
+[[Categorie:Lijsten van gemeentelijke monumenten naar gemeente|<?php echo $gem;?>]]<br/>
+[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo $GLOBALS['provincie']."|".$gem."]]";
+
+}
 
 function pageCount(){
   ?>
   <form method="get" style="-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
   <input type="hidden" name="j" value="<?php 
-  if (empty($_GET)) {
+  if (empty($_GET['j'])) {
       echo 1;
       $j=0;
   }
@@ -124,6 +157,34 @@ function pageCount(){
   <?php
   return $j;
 }
+function getISO($province = ""){
+  if ($province ==""){
+    $province = $GLOBALS['provincie'];
+  }
+  $province = strtolower($province);
+  switch ($province){
+    case "drenthe":       return "nl-dr"; break;
+    case "flevoland":     return "nl-fl"; break;
+    case "fryslân": 
+    case "friesland":     return "nl-fr"; break;
+    case "gelderland":    return "nl-ge"; break;
+    case "groningen":     return "nl-gr"; break;
+    case "limburg":       return "nl-li"; break;
+    case "noord-brabant": return "nl-nb"; break;
+    case "noord-holland": return "nl-nh"; break;
+    case "overijssel":    return "nl-ov"; break;
+    case "utrecht":       return "nl-ut"; break;
+    case "zeeland":       return "nl-ze"; break;
+    case "zuid-holland":  return "nl-zh"; break;
+   }
 
+}
+function stringBackTogether( $start, $array, $space=''){
+  $returnString = "";
+  for ($i = $start; $i <= count($array); $i++){
+   @ $returnString .= $array[$i].$space;
+  }
+  return $returnString;
+}
 mysqli_close($con);  
 ?>
