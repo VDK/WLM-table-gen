@@ -1,8 +1,9 @@
 <?php
+
 //Set up variables
-$table='rheden'; // the name of the table in the DB
-$GLOBALS['gemeente'] ="Rheden";
-$GLOBALS['provincie'] = "Gelderland";
+$table='veendam'; // the name of the table in the DB
+$GLOBALS['gemeente'] ="Veendam";
+$GLOBALS['provincie'] = "Groningen";
 //don't edit these variables:
 $previousPlace = "";
 $j = pageCount(); //GET page count
@@ -21,7 +22,7 @@ while($row = mysqli_fetch_array($result)){
 }
 
 //select all the things
-$result = mysqli_query($con,"SELECT * FROM ".$table." ORDER BY plaats, nummer");
+$result = mysqli_query($con,"SELECT * FROM ".$table." ");
 
 //creating the actual table
 $i = 0;
@@ -35,18 +36,17 @@ while($row = mysqli_fetch_array($result))
       if ($j != 0 || $i != 0){ echo "|}<br/>";}  // closes previous table
       createTableStart($row['plaats'],$cities[$row['plaats']]);
     }
-        
-    $coordinate=geocoding($row['adres'].', '.$row['postcode'].', '.$row['plaats']   );
+    $coordinate=geocoding($row['adres'].', '.$row['plaats'].", Veendam, The Netherlands"  );
     createRow(
      $row['object'],                      //object
      "",                                  //bouwjaar
      "",                                  //architect
      $row['adres'],                       //adres
-     $row['postcode'],                    //postcode
+     "",                                  //postcode
      $coordinate['lat'],                  //lat
      $coordinate['long'],                 //long
-     "0275",                              //gemcode
-     $row['nummer'],                      //objnr
+     "0173",                              //gemcode
+     "wikinr".($i+1),                     //objnr
      "",                                  //MIP_nr
      "",                                  //kadaster
      "",                                  //rijksmonument nummer
@@ -134,7 +134,7 @@ $gem = $GLOBALS['gemeente'];
 {{references}}}}<br/>
 [[Categorie:<?php echo $gem;?>]]<br/>
 [[Categorie:Lijsten van gemeentelijke monumenten naar gemeente|<?php echo $gem;?>]]<br/>
-[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo $GLOBALS['provincie']."|".$gem."]]";
+[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem."]]";
 
 }
 
@@ -177,9 +177,41 @@ function getISO($province = ""){
    }
 
 }
+function getProvinceCategoryName($province=""){
+if ($province ==""){
+    $province = $GLOBALS['provincie'];
+  }
+  $province = strtolower($province);
+  switch ($province){
+    case "drenthe":       
+    case "flevoland":  
+    case "friesland":     
+    case "gelderland":    
+    case "overijssel":    
+    case "zeeland": return ucfirst($province); break;
+
+    case "noord-brabant": 
+    case "noord-holland":     
+    case "zuid-holland":  
+      $nameParts= explode ("-", $province);
+      $nameParts[0] = ucfirst($nameParts[0]);
+      $nameparts[1] = ucfirst($nameParts[1]);
+      return $nameParts[0]."-".$nameParts[1];
+      break;
+    
+    case "groningen":     
+    case "utrecht":       return ucfirst($province." (provincie)"); break;
+    
+    case "limburg":       return "Limburg (Nederland)"; break;   
+    case "fryslân":       return "Friesland"; break;
+   }
+
+}
+
+
 function stringBackTogether( $start, $array, $space=''){
   $returnString = "";
-  for ($i = $start; $i <= count($array); $i++){
+  for ($i = $start; $i < count($array); $i++){
    @ $returnString .= $array[$i].$space;
   }
   return $returnString;
