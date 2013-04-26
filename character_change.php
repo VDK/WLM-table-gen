@@ -26,8 +26,8 @@ while($row = mysqli_fetch_array($result)){
 }
 
 function printQuery($table, $columName, $replicant, $original){
-  echo "UPDATE ".$table."<br/>";
-  echo "SET ".$columName."= REPLACE(".$columName.", '".$replicant."', '".$original."');<br/><br/>";
+  echo "<p>UPDATE ".$table."<br/>";
+  echo "SET ".$columName."= REPLACE(".$columName.", '".$replicant."', '".$original."');</p>";
 }
 
 
