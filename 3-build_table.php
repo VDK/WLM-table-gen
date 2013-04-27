@@ -21,7 +21,7 @@ while($row = mysqli_fetch_array($result)){
 }
 
 //select CBS-number
-$result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente']."' AND provincie LIKE '".$GLOBALS['provincie']."'";
+$result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente']."' AND provincie LIKE '".$GLOBALS['provincie']."'");
 while($row = mysqli_fetch_array($result)){
   $gemNummer =  $row['gemcode'];
 }
