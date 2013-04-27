@@ -1,28 +1,27 @@
 <?php
 
-//Set up variables
-$table='veendam'; // the name of the table in the DB
-$GLOBALS['gemeente'] ="Veendam";
-$GLOBALS['provincie'] = "Groningen";
-//don't edit these variables:
+
+include_once('1-set_up_variables.php');
+
+
 $previousPlace = "";
 $j = pageCount(); //GET page count
 
 // Create connection
-$con=mysqli_connect("127.0.0.1","root","","test");
+$con=mysqli_connect($host,$username,$password,$database);
 
 // Check connection
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
 
 //get count per place
-$result = mysqli_query($con,"SELECT plaats, COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY plaats;");
+$result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
 
 while($row = mysqli_fetch_array($result)){
-  $cities[(string)$row['plaats']]=  $row['num'];
+  $cities[(string)$row[$column['plaats']]]=  $row['num'];
 }
 
 //select all the things
-$result = mysqli_query($con,"SELECT * FROM ".$table." ");
+$result = mysqli_query($con,"SELECT * FROM ".$table." ".$printOrder);
 
 //creating the actual table
 $i = 0;
@@ -32,38 +31,76 @@ while($row = mysqli_fetch_array($result))
     printHeader(mysqli_num_rows($result));
   }
   if ($i >=$j*10 && $i <$j*10+10 ){
-    if ($previousPlace != $row['plaats']){
+    if ($previousPlace != $row[$column['plaats']]){
       if ($j != 0 || $i != 0){ echo "|}<br/>";}  // closes previous table
-      createTableStart($row['plaats'],$cities[$row['plaats']]);
+      createTableStart($row[$column['plaats']],$cities[$row[$column['plaats']]]);
     }
-    $coordinate=geocoding($row['adres'].', '.$row['plaats'].", Veendam, The Netherlands"  );
+    
+    $adres = getColumName($column['adres'], $row);
+    $coordinate=geocoding($adres.', '.$row[$column['plaats']].", The Netherlands"  );
+    
+    
     createRow(
-     $row['object'],                      //object
-     "",                                  //bouwjaar
-     "",                                  //architect
-     $row['adres'],                       //adres
-     "",                                  //postcode
-     $coordinate['lat'],                  //lat
-     $coordinate['long'],                 //long
-     "0173",                              //gemcode
-     "wikinr".($i+1),                     //objnr
-     "",                                  //MIP_nr
-     "",                                  //kadaster
-     "",                                  //rijksmonument nummer
-     "",                                  //datum aangewezen
-     "",                                  //oorspronkelijk doel van gebruik
-     "");                                 //bron URL
-     if (($i+1) == mysqli_num_rows($result)){
+     getColumName($column['object'],    $row),        //object
+     getColumName($column['bouwjaar'],  $row),        //bouwjaar
+     getColumName($column['architect'], $row),        //architect
+     $adres,                                          //adres
+     getColumName($column['postcode'],  $row),        //postcode
+     $coordinate['lat'],                              //lat
+     $coordinate['long'],                             //long
+     $gemNummer,                                      //gemcode
+     getObjnr($column['objnr'],   $i,   $row),        //objnr
+     getColumName($column['MIP_nr'],    $row),        //MIP_nr
+     getColumName($column['kadaster'],  $row),        //kadaste
+     getColumName($column['rijksnr'],   $row),        //rijksmonument nummer
+     getColumName($column['datum'],     $row),        //datum aangewezen
+     getColumName($column['orfunctie'], $row),        //oorspronkelijk doel van gebruik
+     getColumName($column['url'],       $row)         //bron URL
+    );
+    if (($i+1) == mysqli_num_rows($result)){
       printFooter();
-     }
     }
-    $previousPlace = $row['plaats'];
-    $i++;
   }
+  $previousPlace = $row[$column['plaats']];
+  $i++;
+}
   
 
   
 //Don't edit below this line unless you know what you're doing
+
+function getObjnr($columname, $i, $row){
+  if ($columname ==""){
+    return "wikinr".($i+1);
+  }
+  else{
+    return getColumName($columname, $row);
+  }
+}
+
+function getColumName($columname, $row){
+  if ($columname ==""){
+    return "";
+  }
+  elseif (!(is_array($columname))){
+    return $row[$columname];
+  }
+  else{
+    $output = "";
+    for ($i =0; $i < count($columname); $i++){
+      if (is_array($columname[$i]) && $row[$columname[$i][1]] != "" ){
+        $output .= $columname[$i][0];
+        $output .= $row[$columname[$i][1]];
+       @$output .= $columname[$i][2];
+      }
+      else{
+       @ $output.= $row[$columname[$i]];
+        
+      }
+    }
+    return $output;
+  }
+}
 
  
 function geocoding($address){
@@ -102,12 +139,12 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$ge
 | lon =<?php echo $lon;?>
 | gemcode =<?php echo $gemcode;?>
 | objnr =<?php echo $objnr;?>
-| MIP_nr =<?php  echo $MIP_nr;?>
+<!--| MIP_nr =<?php  //echo $MIP_nr;?>-->
 | kadaster =<?php echo $kadaster;?>
 | rijksmonument =<?php echo $rijksmonument;?>
 | aangewezen =<?php echo $aangewezen;?>
 | oorspr_fun =<?php echo $oorspr_fun;?>
-| url =<?php  echo $url;?> 
+<!-- | url =<?php  //echo $url;?> -->
 | commonscat=
 | image=
 }}
