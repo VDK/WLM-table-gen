@@ -17,17 +17,17 @@ while($row = mysqli_fetch_array($result)){
 }
 
 $result = mysqli_query($con,"SELECT * FROM _changes");
-
+$affected_rows =0;
 while($row = mysqli_fetch_array($result)){
   for ($i = 0; $i < count ($columns); $i++){
-    printQuery($table, $columns[$i], $row['replicant'], $row['original']);
-  
+    mysqli_query($con, buildQuery($table, $columns[$i], $row['replicant'], $row['original']));
+    $affected_rows = $affected_rows + mysqli_affected_rows($con); 
   }
 }
+echo $affected_rows." rows affected";
 
-function printQuery($table, $columName, $replicant, $original){
-  echo "<p>UPDATE ".$table."<br/>";
-  echo "SET ".$columName."= REPLACE(".$columName.", '".$replicant."', '".$original."');</p>";
+function buildQuery($table, $columName, $replicant, $original){
+  return "UPDATE ".$table." SET ".$columName."= REPLACE(".$columName.", '".$replicant."', '".$original."')";
 }
 
 
