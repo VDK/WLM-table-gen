@@ -1,8 +1,8 @@
 <?php
-$table = 'haren';
+include_once('1-set_up_variables.php');
 
 // Create connection
-$con=mysqli_connect("127.0.0.1","root","","test");
+$con=mysqli_connect($host,$username,$password,$database);
 
 // Check connection
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
