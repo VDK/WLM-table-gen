@@ -28,6 +28,6 @@ CREATE TABLE `_changes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
-/*Data for the table `_changes` */
+/*Data for the table `_changes` */ 
 
 insert  into `_changes`(`id`,`replicant`,`original`) values (1,'#44#','-'),(2,'#99#','/'),(3,'#22#','é'),(4,'#11#','ë'),(5,'#23#','ö'),(6,'#37#','â');
