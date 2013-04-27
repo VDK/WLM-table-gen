@@ -3,7 +3,6 @@
 $table='haren'; // the name of the table in the DB
 $GLOBALS['gemeente'] ="Haren";
 $GLOBALS['provincie'] = "Groningen";
-$gemNummer = "0017";
 $printOrder = "ORDER BY plaats";
 
 ///set up column variables
