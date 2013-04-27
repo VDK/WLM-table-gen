@@ -1,9 +1,9 @@
 <?php
 //Set up variables
-$table='haren'; // the name of the table in the DB
-$GLOBALS['gemeente'] ="Haren";
+$table                = "haren"; // the name of the table in the DB
+$GLOBALS['gemeente']  = "Haren";
 $GLOBALS['provincie'] = "Groningen";
-$printOrder = "ORDER BY plaats";
+$printOrder           = "ORDER BY plaats";
 
 ///set up column variables
 
@@ -26,7 +26,7 @@ $column['url']          = ""; //URL
 
 //change at first setup:
 
-$host = "127.0.0.1";
+$host     = "127.0.0.1";
 $username = "root";
 $password = "";
 $database = "test";
