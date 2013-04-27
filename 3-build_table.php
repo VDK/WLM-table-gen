@@ -20,6 +20,12 @@ while($row = mysqli_fetch_array($result)){
   $cities[(string)$row[$column['plaats']]]=  $row['num'];
 }
 
+//select CBS-number
+$result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente']."' AND provincie LIKE '".$GLOBALS['provincie']."'";
+while($row = mysqli_fetch_array($result)){
+  $gemNummer =  $row['gemcode'];
+}
+
 //select all the things
 $result = mysqli_query($con,"SELECT * FROM ".$table." ".$printOrder);
 
