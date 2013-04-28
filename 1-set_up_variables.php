@@ -1,8 +1,8 @@
 <?php
 //Set up variables
-$table                = "haren"; // the name of the table in the DB
-$GLOBALS['gemeente']  = "Haren";
-$GLOBALS['provincie'] = "Groningen";
+$table                = "kampen"; // the name of the table in the DB
+$GLOBALS['gemeente']  = "Kampen";
+$GLOBALS['provincie'] = "Overijssel";
 $printOrder           = "ORDER BY plaats";
 
 ///set up column variables
@@ -10,18 +10,24 @@ $printOrder           = "ORDER BY plaats";
 $column['plaats']       = 'plaats';        //plaats    (assumed to be one collumn)
 
 
-$column['object']       = Array ('huidigefunctie', Array(" ''", "objectnaam", "''"));        //object
-$column['bouwjaar']     = 'bouwjaar';             //bouwjaar
-$column['architect']    = 'architect';            //architect 
-$column['adres']        = Array ('straat', Array (" ", 'huisnr'));  //adres    
-$column['postcode']     = 'postcode';             //postcode   
-$column['kadaster']     = 'kadaster';             //postcode   
-$column['orfunctie']    = 'voormaligefunctie';    //oorspronkelijk doel van gebruik 
-$column['objnr']        = "";                     //id nummer die de gemeente heeft toegewezen
+$column['object']       = "object";        //object
+$column['bouwjaar']     = "bouwjaar";             //bouwjaar
+$column['architect']    = "architect";            //architect 
+$column['adres']        = Array ("straat", array (" ", "huisnr"), array("",'toevoeging'));  //adres    
+$column['postcode']     = "";             //postcode   
+$column['kadaster']     = "kadaster";             //postcode   
+$column['orfunctie']    = "";    //oorspronkelijk functie
+$column['objnr']        = "monnr";                     //id nummer die de gemeente heeft toegewezen
 $column['MIP_nr']       = ""; //MIP_nr    
 $column['rijksnr']      = ""; //rijksmonument nummer   
-$column['datum']        = ""; //datum aangewezen
+$column['datum']        = "datum"; //datum aangewezen
 $column['url']          = ""; //URL
+
+//Rijksdriehoek
+//sometimes, fairly rarely, rijksdriehoek-gegevens are provided
+$rijksdriehoek= true; //default should be false
+$column['x'] = "x";
+$column['y'] = "y";
                      
 
 //change at first setup:
