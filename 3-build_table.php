@@ -237,9 +237,7 @@ if ($province ==""){
     case "noord-holland":     
     case "zuid-holland":  
       $nameParts= explode ("-", $province);
-      $nameParts[0] = ucfirst($nameParts[0]);
-      $nameparts[1] = ucfirst($nameParts[1]);
-      return $nameParts[0]."-".$nameParts[1];
+      return ucfirst($nameParts[0])."-".ucfirst($nameParts[1]);
       break;
     
     case "groningen":     
