@@ -4,9 +4,12 @@
 include_once('1-set_up_variables.php');
 
 
-$previousPlace = "";
-$j = pageCount(); //GET page count
-
+if ($rijksdriehoek == false){ //no need to have a "next" button if there are rijksdriehoek-coordinates
+  $j = pageCount(); //GET page count
+}
+else {
+  $j =0;
+}
 // Create connection
 $con=mysqli_connect($host,$username,$password,$database);
 
@@ -31,21 +34,27 @@ $result = mysqli_query($con,"SELECT * FROM ".$table." ".$printOrder);
 
 //creating the actual table
 $i = 0;
+$previousPlace = "";
 while($row = mysqli_fetch_array($result))
   {
   if ($i ==0 && $j == 0){
-    printHeader(mysqli_num_rows($result));
+    printHeader(mysqli_num_rows($result)); //create start of page
   }
-  if ($i >=$j*10 && $i <$j*10+10 ){
+  if (($i >=$j*10 && $i <$j*10+10) || $rijksdriehoek == true){
     if ($previousPlace != $row[$column['plaats']]){
-      if ($j != 0 || $i != 0){ echo "|}<br/>";}  // closes previous table
-      createTableStart($row[$column['plaats']],$cities[$row[$column['plaats']]]);
+      if ($j != 0 || $i != 0 ){ echo "|}<br/>";}  // closes previous table
+      createTableStart($row[$column['plaats']],$cities[$row[$column['plaats']]]); //create start of table
     }
-    
+    //get coordinates
     $adres = getColumName($column['adres'], $row);
-    $coordinate=geocoding($adres.', '.$row[$column['plaats']].", The Netherlands"  );
     
-    
+    if ($rijksdriehoek == false){
+      $coordinate=geocoding($adres.', '.$row[$column['plaats']].", The Netherlands"  );
+    }
+    else{
+      $coordinate=rd2wgs($row[$column["x"]],$row[$column["y"]]);
+    }
+    //build one row
     createRow(
      getColumName($column['object'],    $row),        //object
      getColumName($column['bouwjaar'],  $row),        //bouwjaar
@@ -73,7 +82,6 @@ while($row = mysqli_fetch_array($result))
   
 
   
-//Don't edit below this line unless you know what you're doing
 
 function getObjnr($columname, $i, $row){
   if ($columname ==""){
@@ -91,7 +99,7 @@ function getColumName($columname, $row){
   elseif (!(is_array($columname))){
     return $row[$columname];
   }
-  else{
+  elseif (is_array($columname)){
     $output = "";
     for ($i =0; $i < count($columname); $i++){
       if (is_array($columname[$i]) && $row[$columname[$i][1]] != "" ){
@@ -100,7 +108,7 @@ function getColumName($columname, $row){
        @$output .= $columname[$i][2];
       }
       else{
-       @ $output.= $row[$columname[$i]];
+       @$output.= $row[$columname[$i]];
         
       }
     }
@@ -123,7 +131,39 @@ function geocoding($address){
     echo "<h1>Google Maps is mad, wait a second and reload this page</h1>";
   }
 }
-
+function rd2wgs ($x, $y)
+{
+    // Calculate WGS84 coördinates
+    /* retrieved at http://www.god-object.com/2009/10/23/convert-rijksdriehoekscordinaten-to-latitudelongitude/ */
+    $dX = ($x - 155000) * pow(10, - 5);
+    $dY = ($y - 463000) * pow(10, - 5);
+    $SomN = (3235.65389 * $dY) + (- 32.58297 * pow($dX, 2)) + (- 0.2475 *
+         pow($dY, 2)) + (- 0.84978 * pow($dX, 2) *
+         $dY) + (- 0.0655 * pow($dY, 3)) + (- 0.01709 *
+         pow($dX, 2) * pow($dY, 2)) + (- 0.00738 *
+         $dX) + (0.0053 * pow($dX, 4)) + (- 0.00039 *
+         pow($dX, 2) * pow($dY, 3)) + (0.00033 * pow(
+            $dX, 4) * $dY) + (- 0.00012 *
+         $dX * $dY);
+    $SomE = (5260.52916 * $dX) + (105.94684 * $dX * $dY) + (2.45656 *
+         $dX * pow($dY, 2)) + (- 0.81885 * pow(
+            $dX, 3)) + (0.05594 *
+         $dX * pow($dY, 3)) + (- 0.05607 * pow(
+            $dX, 3) * $dY) + (0.01199 *
+         $dY) + (- 0.00256 * pow($dX, 3) * pow(
+            $dY, 2)) + (0.00128 *
+         $dX * pow($dY, 4)) + (0.00022 * pow($dY,
+            2)) + (- 0.00022 * pow(
+            $dX, 2)) + (0.00026 *
+         pow($dX, 5));
+ 
+    $Latitude = 52.15517 + ($SomN / 3600);
+    $Longitude = 5.387206 + ($SomE / 3600);
+ 
+    return array(
+        'lat' => $Latitude ,
+        'long' => $Longitude);
+}
 function createTableStart($city, $count){
 $city= ucfirst($city);
 ?>
@@ -172,7 +212,7 @@ $gem = $GLOBALS['gemeente'];
 |}<br/>
 {{Commonscat|Gemeentelijke monumenten in <?php echo $gem."}}"; 
 ?><br/>
-{{Appendix|2=*{{Cite web|url= |title=Monumenten|publisher=[[<?php echo $gem."|"."Gemeente"." ".$gem;?>]]|accessdate=<?php echo date('j-M-Y');?>}}<br/>
+{{Appendix|2=*{{Cite web|url= |title=Monumenten|publisher=[[<?php echo $gem."|"."Gemeente ".$gem;?>]]|format= |date= |accessdate=<?php echo date('j-M-Y');?>}}<br/>
 ----<br/>
 {{references}}}}<br/>
 [[Categorie:<?php echo $gem;?>]]<br/>
@@ -180,6 +220,7 @@ $gem = $GLOBALS['gemeente'];
 [[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem."]]";
 
 }
+
 
 function pageCount(){
   ?>
