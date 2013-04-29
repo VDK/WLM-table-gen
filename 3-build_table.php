@@ -120,7 +120,7 @@ function getColumName($columname, $row){
  
 function geocoding($address){
   $address = rawurlencode($address);
-  $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
+  $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.urlencode ($address).'&sensor=false');
   $output= json_decode($geocode);
   if ($output->status =="OK"){
     $geo['lat'] = $output->results[0]->geometry->location->lat;
