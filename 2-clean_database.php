@@ -7,7 +7,7 @@ $con=mysqli_connect($host,$username,$password,$database);
 // Check connection
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
 
-//get count per place
+//get column names of the table
 $result = mysqli_query($con,"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE table_name = '".$table."'");
 
 $i =0;
