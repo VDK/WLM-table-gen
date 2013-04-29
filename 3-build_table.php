@@ -17,11 +17,12 @@ $con=mysqli_connect($host,$username,$password,$database);
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
 
 //get count per place
-$result = mysqli_query($con,"SELECT ".$column[$column['plaats']].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column[$column['plaats']].";");
+$result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
 
 while($row = mysqli_fetch_array($result)){
   $cities[(string)$row[$column['plaats']]]=  $row['num'];
 }
+
 
 //select CBS-number
 $result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente']."' AND provincie LIKE '".$GLOBALS['provincie']."'");
