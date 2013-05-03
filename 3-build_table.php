@@ -218,12 +218,12 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$ge
 | lon =<?php echo $lon;?>
 | gemcode =<?php echo $gemcode;?>
 | objnr =<?php echo $objnr;?>
-<!--| MIP_nr =<?php  //echo $MIP_nr;?>-->
+<?php echo ($MIP_nr =="")? : "|MIP_nr = $MIP_nr";?>
 | kadaster =<?php echo $kadaster;?>
 | rijksmonument =<?php echo $rijksmonument;?>
 | aangewezen =<?php echo $aangewezen;?>
 | oorspr_fun =<?php echo $oorspr_fun;?>
-<!-- | url =<?php  //echo $url;?> -->
+<?php echo ($url=="")? : "| url = $url";?> 
 | commonscat=
 | image=
 }}
