@@ -10,7 +10,6 @@ https://docs.google.com/file/d/0B0QItG8OyBLrSDJSWG9ZWWE4RWc/edit?usp=sharing
 
 To-do's
 -------
-* Google Maps seems to have a policy of making all the â, ë and é's disapear in their street name database, returning nothing when putting the query through its API
 * Making it possible to retrieve Cadastre data
 
 
@@ -22,6 +21,7 @@ Recent changes
 * Coordinates returned by Google Maps are tested on their accuracy
 * A cookie is used to do the aforementioned
 * A distinction is made between the name of the municipality and the name of its Wikipedia page
+* Google Maps bug where â, ë and é's caused problems fixed
 
 License
 -------
