@@ -11,7 +11,7 @@ https://docs.google.com/file/d/0B0QItG8OyBLrSDJSWG9ZWWE4RWc/edit?usp=sharing
 Recent changes
 --------------
 
-03-05-2013
+ *03-05-2013*
 * CBS-codes are now automatically retrieved
 * Coordinates returned by Google Maps are tested on their accuracy
 * A cookie is used to do the aforementioned
