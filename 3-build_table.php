@@ -3,8 +3,11 @@
 
 include_once('1-set_up_variables.php');
 
+$GLOBALS['gemeente-artikel'] =$gemeente;
+$gemeenteParts = explode(" (",$gemeente );
+$GLOBALS['gemeente-naam'] = $gemeenteParts[0];
 
-if ($rijksdriehoek == false){ //no need to have a "next" button if there are rijksdriehoek-coordinates
+if ($rijksdriehoek != true){ //no need to have a "next" button if there are rijksdriehoek-coordinates
   $j = pageCount(); //GET page count
 }
 else {
@@ -16,19 +19,43 @@ $con=mysqli_connect($host,$username,$password,$database);
 // Check connection
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
 
-//get count per place
-$result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
+//get count per place, and the center of town (because Google Maps sometimes sucks at reading addresses, and returns that instead)
+$cities['gemeente'] ="";
+if (isset( $_COOKIE["CityVarsCookie"])){
+  $cities = unserialize($_COOKIE["CityVarsCookie"]);
+}
+if ($cities['gemeente'] != $GLOBALS['gemeente-naam'] ){
 
-while($row = mysqli_fetch_array($result)){
-  $cities[(string)$row[$column['plaats']]]=  $row['num'];
+  $result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
+
+  while($row = mysqli_fetch_array($result)){  
+      
+      $cityvars =Array('numMon' => $row['num']);
+      if ($rijksdriehoek != true){
+        $cityvars = array_merge ($cityvars, Array ("coordinates" => geocoding($row[$column['plaats']]))); 
+      }
+      $cities[(string)$row[$column['plaats']]] = $cityvars;
+  }
+  
+  $cities['gemeente'] = $GLOBALS['gemeente-naam'];
+
+  setcookie("CityVarsCookie", serialize($cities), time()+3600);
+
 }
 
-
 //select CBS-number
-$result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente']."' AND provincie LIKE '".$GLOBALS['provincie']."'");
+$result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente-naam']."' AND provincie LIKE '".$GLOBALS['provincie']."'");
 while($row = mysqli_fetch_array($result)){
   $gemNummer =  $row['gemcode'];
 }
+if ($gemNummer  == NULL){
+  echo "<h1>CBS-number niet gevonden</h1>";
+  $gemNummer ="";
+}
+
+
+
+
 
 //select all the things
 $result = mysqli_query($con,"SELECT * FROM ".$table." ".$printOrder);
@@ -44,16 +71,21 @@ while($row = mysqli_fetch_array($result))
   if (($i >=$j*10 && $i <$j*10+10) || $rijksdriehoek == true){
     if ($previousPlace != $row[$column['plaats']]){
       if ($j != 0 || $i != 0 ){ echo "|}<br/>";}  // closes previous table
-      createTableStart($row[$column['plaats']],$cities[$row[$column['plaats']]]); //create start of table
+      createTableStart($row[$column['plaats']],$cities[$row[$column['plaats']]]['numMon']); //create start of table
     }
     //get coordinates
     $adres = getColumName($column['adres'], $row);
     
-    if ($rijksdriehoek == false){
-      $coordinate=geocoding($adres.', '.$row[$column['plaats']].", The Netherlands"  );
+    if ($rijksdriehoek != true){
+      $coordinates=geocoding($adres.', '.$row[$column['plaats']] );
+      //test if the coordinates are any good
+      if ($coordinates  == $cities[$row[$column['plaats']]]['coordinates']) {
+        $coordinates['lat'] = "";
+        $coordinates['long'] = "";
+      }
     }
     else{
-      $coordinate=rd2wgs($row[$column["x"]],$row[$column["y"]]);
+      $coordinates=rd2wgs($row[$column["x"]],$row[$column["y"]]);
     }
     //build one row
     createRow(
@@ -62,8 +94,8 @@ while($row = mysqli_fetch_array($result))
      getColumName($column['architect'], $row),        //architect
      $adres,                                          //adres
      getColumName($column['postcode'],  $row),        //postcode
-     $coordinate['lat'],                              //lat
-     $coordinate['long'],                             //long
+     $coordinates['lat'],                              //lat
+     $coordinates['long'],                             //long
      $gemNummer,                                      //gemcode
      getObjnr($column['objnr'],   $i,   $row),        //objnr
      getColumName($column['MIP_nr'],    $row),        //MIP_nr
@@ -134,7 +166,7 @@ function geocoding($address){
 }
 function rd2wgs ($x, $y)
 {
-    // Calculate WGS84 coÃ¶rdinates
+    // Calculate WGS84 coördinates
     /* retrieved at http://www.god-object.com/2009/10/23/convert-rijksdriehoekscordinaten-to-latitudelongitude/ */
     $dX = ($x - 155000) * pow(10, - 5);
     $dY = ($y - 463000) * pow(10, - 5);
@@ -170,7 +202,7 @@ $city= ucfirst($city);
 ?>
 ==<?php echo $city;?>==<br/>
 De plaats [[<?php echo $city;?>]] kent <?php echo $count; if ($count ==1){ echo " gemeentelijk monument";} else { echo " gemeentelijke monumenten";}?>:<br/>
-{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo getISO();?>|gemeente=[[<?php echo $GLOBALS['gemeente'];?>]]}}<br/>
+{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo getISO();?>|gemeente=[[<?php echo $GLOBALS['gemeente-artikel'];?>]]}}<br/>
 <?php
 }
 
@@ -201,24 +233,24 @@ echo "<br/>&lt;!-- --&gt;<br/>";
 }
 function printHeader($num_monuments){
 ?>
-De [[Nederlandse gemeente|gemeente]] [[<?php echo $GLOBALS['gemeente'];?>]] kent <?php echo $num_monuments; ?> gemeentelijke monumenten, hieronder een overzicht. 
-Zie ook de [[Lijst van rijksmonumenten in <?php echo $GLOBALS['gemeente']."|rijksmonumenten in ".$GLOBALS['gemeente']."]].<br/>";
+De [[Nederlandse gemeente|gemeente]] [[<?php echo ($GLOBALS['gemeente-artikel'] == $GLOBALS['gemeente-naam'] ?  $GLOBALS['gemeente-naam'] : $GLOBALS['gemeente-artikel']."||".$GLOBALS['gemeente-naam']);?>]] kent <?php echo $num_monuments; ?> gemeentelijke monumenten, hieronder een overzicht. 
+Zie ook de [[Lijst van rijksmonumenten in <?php echo $GLOBALS['gemeente-artikel']."|rijksmonumenten in ".$GLOBALS['gemeente-naam']."]].<br/>";
 
 
 }
 
 function printFooter(){
-$gem = $GLOBALS['gemeente'];
+$gem = $GLOBALS['gemeente-naam'];
 ?>
 |}<br/>
 {{Commonscat|Gemeentelijke monumenten in <?php echo $gem."}}"; 
 ?><br/>
-{{Appendix|2=*{{Cite web|url= |title=Monumenten|publisher=[[<?php echo $gem."|"."Gemeente ".$gem;?>]]|format= |date= |accessdate=<?php echo date('j-M-Y');?>}}<br/>
+{{Appendix|2=*{{Cite web|url= |title=Monumenten|publisher=[[<?php echo $GLOBALS['gemeente-artikel']."|"."Gemeente ".$gem;?>]]|format= |date= |accessdate=<?php echo date('j-M-Y');?>}}<br/>
 ----<br/>
 {{references}}}}<br/>
 [[Categorie:<?php echo $gem;?>]]<br/>
-[[Categorie:Lijsten van gemeentelijke monumenten naar gemeente|<?php echo $gem;?>]]<br/>
-[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem."]]";
+[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem."]]";?><br/>
+[[Categorie:Lijsten van gemeentelijke monumenten naar gemeente|<?php echo $gem."]]";
 
 }
 
@@ -248,7 +280,7 @@ function getISO($province = ""){
   switch ($province){
     case "drenthe":       return "nl-dr"; break;
     case "flevoland":     return "nl-fl"; break;
-    case "fryslÃ¢n": 
+    case "fryslân": 
     case "friesland":     return "nl-fr"; break;
     case "gelderland":    return "nl-ge"; break;
     case "groningen":     return "nl-gr"; break;
@@ -279,14 +311,13 @@ if ($province ==""){
     case "noord-holland":     
     case "zuid-holland":  
       $nameParts= explode ("-", $province);
-      return ucfirst($nameParts[0])."-".ucfirst($nameParts[1]);
-      break;
+      return ucfirst($nameParts[0])."-".ucfirst($nameParts[1]); break;
     
     case "groningen":     
     case "utrecht":       return ucfirst($province." (provincie)"); break;
     
     case "limburg":       return "Limburg (Nederland)"; break;   
-    case "fryslÃ¢n":       return "Friesland"; break;
+    case "fryslân":       return "Friesland"; break;
    }
 
 }
