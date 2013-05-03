@@ -151,7 +151,7 @@ function getColumName($columname, $row){
 
  
 function geocoding($address){
-  $address = rawurlencode($address);
+  $address = rawurlencode(normalizer($address));
   $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
   $output= json_decode($geocode);
   if ($output->status =="OK"){
@@ -164,6 +164,16 @@ function geocoding($address){
     echo "<h1>Google Maps is mad, wait a second and reload this page</h1>";
   }
 }
+
+function normalizer($original_string){
+  $some_special_chars = array("á", "é", "í", "ó", "ú", "Á", "É", "Í", "Ó", "Ú", "ñ", "Ñ", "â", "Â", "ë", "Ë");
+  $replacement_chars  = array("a", "e", "i", "o", "u", "A", "E", "I", "O", "U", "n", "N", "a", "A", "e", "E");
+
+  $replaced_string    = str_replace($some_special_chars, $replacement_chars, $original_string);
+
+  return $replaced_string; 
+}
+
 function rd2wgs ($x, $y)
 {
     // Calculate WGS84 coördinates
