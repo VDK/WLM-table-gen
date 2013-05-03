@@ -1,11 +1,17 @@
 WLM-table-gen
 =============
 
-This is a small script to generate Wiki tables of _gemeentelijke monumenten_ out of a MySQL database. It also features a geocoding option. It might get bigger if I choose to expand it with queries to the Kadaster database.
+This is a small script to generate Wiki tables of _gemeentelijke monumenten_ out of a MySQL database.
+It supplements this data with coordinates based on Google Maps' data and the municipality's CBS-code
 
 There is a OUTDATED step-by-step guide in Dutch here:
 
 https://docs.google.com/file/d/0B0QItG8OyBLrSDJSWG9ZWWE4RWc/edit?usp=sharing
+
+To-do's
+-------
+* Google Maps seems to have a policy of making all the â, ë and é's disapear in their street name database, returning nothing when putting the query through its API
+* Making it possible to retrieve Cadastre data
 
 
 Recent changes
