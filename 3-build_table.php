@@ -4,22 +4,23 @@
 include_once('1-set_up_variables.php');
 
 $GLOBALS['gemeente-artikel'] =$gemeente;
-$gemeenteParts = explode(" (",$gemeente );
-$GLOBALS['gemeente-naam'] = $gemeenteParts[0];
+$GLOBALS['gemeente-naam'] = getGemeenteNaam($gemeente);
 
-if ($rijksdriehoek != true){ //no need to have a "next" button if there are rijksdriehoek-coordinates
-  $j = pageCount(); //GET page count
-}
-else {
-  $j =0;
-}
 // Create connection
 $con=mysqli_connect($host,$username,$password,$database);
 
 // Check connection
 if (mysqli_connect_errno($con)) { echo "Failed to connect to MySQL: " . mysqli_connect_error(); }
 
-//get count per place, and the center of town (because Google Maps sometimes sucks at reading addresses, and returns that instead)
+//GET page count
+if ($rijksdriehoek != true){ //no need to have a "next" button if there are rijksdriehoek-coordinates
+  $j = getPageCountAndPrintButton(); 
+}
+else {
+  $j =0;
+}
+
+//get monument-count per place, and the center of town (because Google Maps sometimes sucks at reading addresses, and returns that instead)
 $cities['gemeente'] ="";
 if (isset( $_COOKIE["CityVarsCookie"])){
   $cities = unserialize($_COOKIE["CityVarsCookie"]);
@@ -52,9 +53,6 @@ if ($gemNummer  == NULL){
   echo "<h1>CBS-number niet gevonden</h1>";
   $gemNummer ="";
 }
-
-
-
 
 
 //select all the things
@@ -114,7 +112,6 @@ while($row = mysqli_fetch_array($result))
 }
   
 
-  
 
 function getObjnr($columname, $i, $row){
   if ($columname ==""){
@@ -140,7 +137,7 @@ function getColumName($columname, $row){
         $output .= $row[$columname[$i][1]];
        @$output .= $columname[$i][2];
       }
-      else{
+      else if ($row[$columname[$i]] != ""){
        @$output.= $row[$columname[$i]];
         
       }
@@ -149,7 +146,10 @@ function getColumName($columname, $row){
   }
 }
 
- 
+function getGemeenteNaam($gemeente){
+  $gemeenteNameParts = explode(" (",$gemeente );
+  return $gemeenteNameParts[0];
+} 
 function geocoding($address){
   $address = rawurlencode(normalizer($address));
   $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
@@ -227,13 +227,13 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$ge
 | lat =<?php echo $lat;?>
 | lon =<?php echo $lon;?>
 | gemcode =<?php echo $gemcode;?>
-| objnr =<?php echo $objnr;?>
-<?php echo ($MIP_nr =="")? : "|MIP_nr = $MIP_nr";?>
-<?php echo ($kadaster=="")? : "| kadaster = $kadaster";?>
+| objnr =<?php echo $objnr;
+ echo ($MIP_nr =="")? : "|MIP_nr = $MIP_nr";
+ echo ($kadaster=="")? : "| kadaster = $kadaster";?>
 | rijksmonument =<?php echo $rijksmonument;?>
 | aangewezen =<?php echo $aangewezen;?>
-| oorspr_fun =<?php echo $oorspr_fun;?>
-<?php echo ($url=="")? : "| url = $url";?> 
+| oorspr_fun =<?php echo $oorspr_fun;
+ echo ($url=="")? : "| url = $url";?> 
 | commonscat=
 | image=
 }}
@@ -259,13 +259,13 @@ $gem = $GLOBALS['gemeente-naam'];
 ----<br/>
 {{references}}}}<br/>
 [[Categorie:<?php echo $gem;?>]]<br/>
-[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem."]]";?><br/>
+[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem;?>]]<br/>
 [[Categorie:Lijsten van gemeentelijke monumenten naar gemeente|<?php echo $gem."]]";
 
 }
 
 
-function pageCount(){
+function getPageCountAndPrintButton(){
   ?>
   <form method="get" style="-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
   <input type="hidden" name="j" value="<?php 
