@@ -219,7 +219,7 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$ge
 | gemcode =<?php echo $gemcode;?>
 | objnr =<?php echo $objnr;?>
 <?php echo ($MIP_nr =="")? : "|MIP_nr = $MIP_nr";?>
-| kadaster =<?php echo $kadaster;?>
+<?php echo ($kadaster=="")? : "| kadaster = $kadaster";?>
 | rijksmonument =<?php echo $rijksmonument;?>
 | aangewezen =<?php echo $aangewezen;?>
 | oorspr_fun =<?php echo $oorspr_fun;?>
