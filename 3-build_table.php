@@ -22,31 +22,28 @@ else {
 }
 
 //get monument-count per place, and the center of town (because Google Maps sometimes sucks at reading addresses, and returns that instead)
-if ($column['plaats'] !=""){
-  $cities['gemeente'] ="";
-  if (isset( $_COOKIE["CityVarsCookie"])){
-    $cities = unserialize($_COOKIE["CityVarsCookie"]);
-  }
-  if ($cities['gemeente'] != $GLOBALS['gemeente-naam'] ){
+
+$cities['gemeente'] ="";
+if (isset( $_COOKIE["CityVarsCookie"])){
+  $cities = unserialize($_COOKIE["CityVarsCookie"]);
+}
+if ($cities['gemeente'] != $GLOBALS['gemeente-naam']){
+  if ($column['plaats'] != ""){
     $result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
 
     while($row = mysqli_fetch_array($result)){  
-        
         $cityvars =Array('numMon' => $row['num']);
         if ($rijksdriehoek != true){
           $cityvars = array_merge ($cityvars, Array ("coordinates" => geocoding($row[$column['plaats']].", ".$GLOBALS['provincie']))); 
         }
         $cities[(string)$row[$column['plaats']]] = $cityvars;
     }
-    
-    $cities['gemeente'] = $GLOBALS['gemeente-naam'];
-
-    setcookie("CityVarsCookie", serialize($cities), time()+3600);
-
   }
-}
-else {
-  $cities[$GLOBALS['gemeente-naam']] = Array ("coordinates" => geocoding($GLOBALS['gemeente-naam'].", ".$GLOBALS['provincie']  )); 
+  else {
+    $cities[$GLOBALS['gemeente-naam']] = Array ("coordinates" => geocoding($GLOBALS['gemeente-naam'].", ".$GLOBALS['provincie']  )); 
+  }
+  $cities['gemeente'] = $GLOBALS['gemeente-naam'];
+  setcookie("CityVarsCookie", serialize($cities), time()+3600);
 }
 
 //select CBS-number
