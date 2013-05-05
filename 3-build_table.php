@@ -2,9 +2,10 @@
 
 
 include_once('1-set_up_variables.php');
+$pace = 10;
 
-$GLOBALS['gemeente-artikel'] =$gemeente;
-$GLOBALS['gemeente-naam'] = getGemeenteNaam($gemeente);
+$GLOBALS['gemeente-artikel'] = $gemeente;
+$GLOBALS['gemeente-naam']    = getFirsIndexOnExplode(" (", $gemeente);
 
 // Create connection
 $con=mysqli_connect($host,$username,$password,$database);
@@ -21,27 +22,31 @@ else {
 }
 
 //get monument-count per place, and the center of town (because Google Maps sometimes sucks at reading addresses, and returns that instead)
-$cities['gemeente'] ="";
-if (isset( $_COOKIE["CityVarsCookie"])){
-  $cities = unserialize($_COOKIE["CityVarsCookie"]);
-}
-if ($cities['gemeente'] != $GLOBALS['gemeente-naam'] ){
-
-  $result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
-
-  while($row = mysqli_fetch_array($result)){  
-      
-      $cityvars =Array('numMon' => $row['num']);
-      if ($rijksdriehoek != true){
-        $cityvars = array_merge ($cityvars, Array ("coordinates" => geocoding($row[$column['plaats']]))); 
-      }
-      $cities[(string)$row[$column['plaats']]] = $cityvars;
+if ($column['plaats'] !=""){
+  $cities['gemeente'] ="";
+  if (isset( $_COOKIE["CityVarsCookie"])){
+    $cities = unserialize($_COOKIE["CityVarsCookie"]);
   }
-  
-  $cities['gemeente'] = $GLOBALS['gemeente-naam'];
+  if ($cities['gemeente'] != $GLOBALS['gemeente-naam'] ){
+    $result = mysqli_query($con,"SELECT ".$column['plaats'].", COUNT(DISTINCT id) AS 'num' FROM ".$table." GROUP BY ".$column['plaats'].";");
 
-  setcookie("CityVarsCookie", serialize($cities), time()+3600);
+    while($row = mysqli_fetch_array($result)){  
+        
+        $cityvars =Array('numMon' => $row['num']);
+        if ($rijksdriehoek != true){
+          $cityvars = array_merge ($cityvars, Array ("coordinates" => geocoding($row[$column['plaats']].", ".$GLOBALS['provincie']))); 
+        }
+        $cities[(string)$row[$column['plaats']]] = $cityvars;
+    }
+    
+    $cities['gemeente'] = $GLOBALS['gemeente-naam'];
 
+    setcookie("CityVarsCookie", serialize($cities), time()+3600);
+
+  }
+}
+else {
+  $cities[$GLOBALS['gemeente-naam']] = Array ("coordinates" => geocoding($GLOBALS['gemeente-naam'].", ".$GLOBALS['provincie']  )); 
 }
 
 //select CBS-number
@@ -63,21 +68,27 @@ $i = 0;
 $previousPlace = "";
 while($row = mysqli_fetch_array($result))
   {
+  if ($column['plaats'] ==""){
+    $plaats = $GLOBALS['gemeente-naam'];
+  }
+  else {
+    $plaats = $row[$column['plaats']];
+  }  
   if ($i ==0 && $j == 0){
     printHeader(mysqli_num_rows($result)); //create start of page
   }
-  if (($i >=$j*10 && $i <$j*10+10) || $rijksdriehoek == true){
-    if ($previousPlace != $row[$column['plaats']]){
+  if (($i >=$j*$pace && $i <$j*$pace+$pace) || $rijksdriehoek == true){
+    if ($previousPlace != $plaats && $column['plaats'] != ""){
       if ($j != 0 || $i != 0 ){ echo "|}<br/>";}  // closes previous table
-      createTableStart($row[$column['plaats']],$cities[$row[$column['plaats']]]['numMon']); //create start of table
+      createTableStart($plaats, $cities[$plaats]['numMon']); //create start of table
     }
     //get coordinates
     $adres = getColumName($column['adres'], $row);
     
     if ($rijksdriehoek != true){
-      $coordinates=geocoding($adres.', '.$row[$column['plaats']] );
+      $coordinates=geocoding($adres.', '.$plaats.', The Netherlands');
       //test if the coordinates are any good
-      if ($coordinates  == $cities[$row[$column['plaats']]]['coordinates']) {
+      if ($coordinates  == $cities[$plaats]['coordinates']) {
         $coordinates['lat'] = "";
         $coordinates['long'] = "";
       }
@@ -107,7 +118,7 @@ while($row = mysqli_fetch_array($result))
       printFooter();
     }
   }
-  $previousPlace = $row[$column['plaats']];
+  $previousPlace = $plaats;
   $i++;
 }
   
@@ -146,9 +157,9 @@ function getColumName($columname, $row){
   }
 }
 
-function getGemeenteNaam($gemeente){
-  $gemeenteNameParts = explode(" (",$gemeente );
-  return $gemeenteNameParts[0];
+function getFirsIndexOnExplode($delimiter, $string){
+  $parts = explode($delimiter, $string);
+  return $parts[0];
 } 
 function geocoding($address){
   $address = rawurlencode(normalizer($address));
