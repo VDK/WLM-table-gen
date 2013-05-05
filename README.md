@@ -4,7 +4,8 @@ WLM-table-gen
 This is a small script to generate Wiki tables of _gemeentelijke monumenten_ out of a MySQL database.
 It supplements this data with coordinates based on Google Maps' data and the municipality's CBS-code
 
-There is a step-by-step guide att http://nl.wikipedia.org/wiki/Wikipedia:Wikiproject/Erfgoed/Nederlandse_Erfgoed_Inventarisatie/Gemeentelijke_monumenten/WLM-table-gen
+There is a step-by-step guide at:
+http://nl.wikipedia.org/wiki/Wikipedia:Wikiproject/Erfgoed/Nederlandse_Erfgoed_Inventarisatie/Gemeentelijke_monumenten/WLM-table-gen
 
 To-do's
 -------
