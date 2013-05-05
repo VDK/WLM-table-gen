@@ -2,7 +2,7 @@
 
 
 include_once('1-set_up_variables.php');
-$pace = 10;
+$pace = 10; //number of rows per page
 
 $GLOBALS['gemeente-artikel'] = $gemeente;
 $GLOBALS['gemeente-naam']    = getFirsIndexOnExplode(" (", $gemeente);
