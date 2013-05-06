@@ -100,8 +100,8 @@ while($row = mysqli_fetch_array($result))
      getColumName($column['architect'], $row),        //architect
      $adres,                                          //adres
      getColumName($column['postcode'],  $row),        //postcode
-     $coordinates['lat'],                              //lat
-     $coordinates['long'],                             //long
+     $coordinates['lat'],                             //lat
+     $coordinates['long'],                            //long
      $gemNummer,                                      //gemcode
      getObjnr($column['objnr'],   $i,   $row),        //objnr
      getColumName($column['MIP_nr'],    $row),        //MIP_nr
@@ -234,14 +234,14 @@ function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$ge
 | postcode =<?php echo $postcode;?>
 | lat =<?php echo $lat;?>
 | lon =<?php echo $lon;?>
-| gemcode =<?php echo $gemcode;?>
-| objnr =<?php echo $objnr;
- echo ($MIP_nr =="")? : "|MIP_nr = $MIP_nr";
- echo ($kadaster=="")? : "| kadaster = $kadaster";?>
+| objnr =<?php echo $objnr;?>
+| gemcode =<?php echo $gemcode;
+ echo ($MIP_nr =="")? ""  : "|MIP_nr = $MIP_nr";
+ echo ($kadaster=="")? "" : "| kadaster = $kadaster";?>
 | rijksmonument =<?php echo $rijksmonument;?>
 | aangewezen =<?php echo $aangewezen;?>
 | oorspr_fun =<?php echo $oorspr_fun;
- echo ($url=="")? : "| url = $url";?> 
+ echo ($url=="")? "" : "| url = $url";?> 
 | commonscat=
 | image=
 }}
