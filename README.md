@@ -10,6 +10,7 @@ http://nl.wikipedia.org/wiki/Wikipedia:Wikiproject/Erfgoed/Nederlandse_Erfgoed_I
 To-do's
 -------
 * Making it possible to retrieve Cadastre data
+* Retrieve zip codes from Google Maps queries
 
 
 Recent changes
