@@ -11,6 +11,7 @@ To-do's
 -------
 * Making it possible to retrieve Cadastre data
 * Retrieve zip codes from Google Maps queries
+* Including MIP-database data
 
 
 Recent changes
