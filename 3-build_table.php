@@ -130,7 +130,7 @@ function getZIPcode($columname, $row, $googleMapsData) {
 
 function getObjnr($columname, $i, $row){
   if ($columname == ""){
-    $label ="w";
+    $label ="WN";
     if (($i+1) <10){
       $label .= "00";
     }
