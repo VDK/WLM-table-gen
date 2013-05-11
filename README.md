@@ -18,7 +18,7 @@ Recent changes
  *11-05-2013*
 * Zip codes are now retrieved from Google Maps queries when not already provided
 
- *03-05-2013*
+*03-05-2013*
 * CBS-codes are now automatically retrieved
 * Coordinates returned by Google Maps are tested on their accuracy
 * A cookie is used to do the aforementioned
