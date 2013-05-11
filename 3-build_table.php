@@ -289,7 +289,7 @@ $gem = $GLOBALS['gemeente-naam'];
 |}<br/>
 {{Commonscat|Gemeentelijke monumenten in <?php echo $gem."}}"; 
 ?><br/>
-{{Appendix|2=*{{Cite web|url= |title=Monumenten|publisher=[[<?php echo $GLOBALS['gemeente-artikel']."|"."Gemeente ".$gem;?>]]|format= |date= |accessdate=<?php echo date('j-M-Y');?>}}<br/>
+{{Appendix|2=*{{Citeer web|url= |titel=Monumenten |uitgever=[[<?php echo $GLOBALS['gemeente-artikel']."|"."Gemeente ".$gem;?>]]|formaat= |datum= |bezochtdatum=<?php echo date('j-M-Y');?>}}<br/>
 ----<br/>
 {{references}}}}<br/>
 [[Categorie:<?php echo $gem;?>]]<br/>
