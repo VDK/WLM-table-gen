@@ -9,13 +9,14 @@ It supplements this data with coordinates based on Google Maps' data and the mun
 To-do's
 -------
 * Making it possible to retrieve Cadastre data
-* Retrieve zip codes from Google Maps queries
 * Including MIP-database data
-* Eliminating ">next 10>" button via AJAX magic
+* Eliminating ">next 10>" button
 
 
 Recent changes
 --------------
+ *11-05-2013*
+* Zip codes are now retrieved from Google Maps queries when not already provided
 
  *03-05-2013*
 * CBS-codes are now automatically retrieved
