@@ -34,13 +34,13 @@ if ($cities['gemeente'] != $GLOBALS['gemeente-naam']){
     while($row = mysqli_fetch_array($result)){  
         $cityvars =Array('numMon' => $row['num']);
         if ($rijksdriehoek != true){
-          $cityvars = array_merge ($cityvars, Array ("coordinates" => geocoding($row[$column['plaats']].", ".$GLOBALS['provincie']))); 
+          $cityvars = array_merge ($cityvars, Array ("coordinates" => getGoogleMapsData($row[$column['plaats']].", ".$GLOBALS['provincie']))); 
         }
         $cities[(string)$row[$column['plaats']]] = $cityvars;
     }
   }
   else {
-    $cities[$GLOBALS['gemeente-naam']] = Array ("coordinates" => geocoding($GLOBALS['gemeente-naam'].", ".$GLOBALS['provincie']  )); 
+    $cities[$GLOBALS['gemeente-naam']] = Array ("coordinates" => getGoogleMapsData($GLOBALS['gemeente-naam'].", ".$GLOBALS['provincie']  )); 
   }
   $cities['gemeente'] = $GLOBALS['gemeente-naam'];
   setcookie("CityVarsCookie", serialize($cities), time()+3600);
@@ -83,9 +83,9 @@ while($row = mysqli_fetch_array($result))
     $adres = getColumName($column['adres'], $row);
     
     if ($rijksdriehoek != true){
-      $coordinates=geocoding($adres.', '.$plaats.', The Netherlands');
+      $coordinates=getGoogleMapsData($adres.', '.$plaats.', The Netherlands');
       //test if the coordinates are any good
-      if ($coordinates  == $cities[$plaats]['coordinates']) {
+      if ($coordinates['lat']  == $cities[$plaats]['coordinates']['lat'] && $coordinates['long']  == $cities[$plaats]['coordinates']['long']) {
         $coordinates['lat'] = "";
         $coordinates['long'] = "";
       }
@@ -99,7 +99,7 @@ while($row = mysqli_fetch_array($result))
      getColumName($column['bouwjaar'],  $row),        //bouwjaar
      getColumName($column['architect'], $row),        //architect
      $adres,                                          //adres
-     getColumName($column['postcode'],  $row),        //postcode
+     getZIPcode($column['postcode'], $row, $coordinates),        //postcode
      $coordinates['lat'],                             //lat
      $coordinates['long'],                            //long
      $gemNummer,                                      //gemcode
@@ -119,11 +119,26 @@ while($row = mysqli_fetch_array($result))
   $i++;
 }
   
-
+function getZIPcode($columname, $row, $googleMapsData) {
+  if ($columname == "" || $row[(string)$columname] == ""){
+    return $googleMapsData['zip'];
+  }  
+  else {
+    getColumName($columname, $row);
+  }
+}
 
 function getObjnr($columname, $i, $row){
-  if ($columname ==""){
-    return "wikinr".($i+1);
+  if ($columname == ""){
+    $label ="w";
+    if (($i+1) <10){
+      $label .= "00";
+    }
+    elseif (($i+1) <100){
+      $label .= "0";
+    }
+    $label .= ($i+1);
+    return $label;
   }
   else{
     return getColumName($columname, $row);
@@ -131,7 +146,7 @@ function getObjnr($columname, $i, $row){
 }
 
 function getColumName($columname, $row){
-  if ($columname ==""){
+  if ($columname == ""){
     return "";
   }
   elseif (!(is_array($columname))){
@@ -154,22 +169,33 @@ function getColumName($columname, $row){
   }
 }
 
-function getFirsIndexOnExplode($delimiter, $string){
-  $parts = explode($delimiter, $string);
-  return $parts[0];
-} 
-function geocoding($address){
+ 
+function getGoogleMapsData($address){
   $address = rawurlencode(normalizer($address));
   $geocode=file_get_contents('http://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
   $output= json_decode($geocode);
   if ($output->status =="OK"){
     $geo['lat'] = $output->results[0]->geometry->location->lat;
     $geo['long'] = $output->results[0]->geometry->location->lng;
+    @$geo['zip'] = $output->results[0]->address_components[6]->long_name;
     return $geo;
     break;
   }
   else if ($output->status=="OVER_QUERY_LIMIT"){
-    echo "<h1>Google Maps is mad, wait a second and reload this page</h1>";
+    switch (rand(0,3)){
+    case 0: 
+      echo "<h1>Google Maps is mad, wait a second and reload this page</h1>";
+      break;
+    case 1:
+      echo "<h1>Google Maps is feeling cranky, wait a second and reload this page</h1>";
+      break;
+    case 2: 
+      echo "<h1>Google Maps thinks you ask too many questions, waith a second and reload this page</h1>";
+      break;
+    case 3: 
+      echo "<h1>Google Maps is feeling upset, take a sip of tea and relaod this page</h1>";
+      break;
+    }  
   }
 }
 
@@ -339,7 +365,10 @@ if ($province ==""){
    }
 
 }
-
+function getFirsIndexOnExplode($delimiter, $string){
+  $parts = explode($delimiter, $string);
+  return $parts[0];
+}
 
 function stringBackTogether( $start, $array, $space=''){
   $returnString = "";
