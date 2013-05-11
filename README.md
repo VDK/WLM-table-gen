@@ -12,7 +12,7 @@ To-do's
 * Including MIP-database data
 * Eliminating ">next 10>" button
 * Determining what hamlet an adress is located in within the municipality - that'd be great
-
+* Getting geolocation through the Postcode API when zip codes have been provided
 
 Recent changes
 --------------
