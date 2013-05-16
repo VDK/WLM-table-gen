@@ -120,12 +120,11 @@ while($row = mysqli_fetch_array($result))
 }
   
 function getZIPcode($columname, $row, $googleMapsData) {
-  if (getColumName($columname, $row) == ""){
-    return $googleMapsData['zip'];
+  $zip = getColumName($columname, $row);
+  if ($zip == ""){
+    $zip = $googleMapsData['zip'];
   }  
-  else {
-   return getColumName($columname, $row);
-  }
+  return $zip;  
 }
 
 function getObjnr($columname, $i, $row){
