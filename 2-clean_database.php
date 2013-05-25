@@ -24,7 +24,7 @@ while($row = mysqli_fetch_array($result)){
     $affected_rows = $affected_rows + mysqli_affected_rows($con); 
   }
 }
-echo $affected_rows." rows affected";
+echo $affected_rows." rijen bijgewerkt, nu kan je <a href='3-build_table.php'>de tabel gaan genereren</a>.";
 
 function buildQuery($table, $columName, $replicant, $original){
   return "UPDATE ".$table." SET ".$columName."= REPLACE(".$columName.", '".$replicant."', '".$original."')";
