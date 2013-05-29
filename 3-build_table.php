@@ -169,7 +169,7 @@ function getColumName($columname, $row){
         $output .= $row[$columname[$i][1]];
        @$output .= $columname[$i][2];
       }
-      else if ($row[$columname[$i]] != ""){
+      else if (@$row[$columname[$i]] != ""){
        @$output.= $row[$columname[$i]];
       }
     }

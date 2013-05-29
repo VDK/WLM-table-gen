@@ -1,27 +1,27 @@
 <?php
 //Set up variables
-$table                = "maasdriel"; // the name of the table in the DB
-$gemeente             = "Maasdriel"; //name of the wikipedia article about the municipality
-$GLOBALS['provincie'] = "Gelderland";
+$table                = "woerden"; // the name of the table in the DB
+$gemeente             = "Woerden"; //name of the wikipedia article about the municipality
+$GLOBALS['provincie'] = "Utrecht";
 
 $printOrder           = "ORDER BY plaats";
 
 ///set up column variables
 
-$column['plaats']       = '';        //plaats    (assumed to be one collumn)
+$column['plaats']       = 'plaats';        //plaats    (assumed to be one collumn)
 
 
-$column['object']       = "object";      //object
+$column['object']       = Array ("object", Array(" ''","naam","''"));     //object
 $column['bouwjaar']     = "";             //bouwjaar
 $column['architect']    = "";            //architect 
-$column['adres']        = "adres";  //adres    
-$column['postcode']     = "";             //postcode   
+$column['adres']        = Array ("adres", Array(" ","nr"));  //adres    
+$column['postcode']     = "postcode";             //postcode   
 $column['kadaster']     = "";             //kadaster   
 $column['orfunctie']    = "";  //oorspronkelijk functie
-$column['objnr']        = "monnr";     //id nummer die de gemeente heeft toegewezen
+$column['objnr']        = "";     //id nummer die de gemeente heeft toegewezen
 $column['MIP_nr']       = ""; //MIP_nr    
 $column['rijksnr']      = ""; //rijksmonument nummer   
-$column['datum']        = ""; //datum aangewezen
+$column['datum']        = "aangewezen"; //datum aangewezen
 $column['url']          = ""; //URL
 
 //Only use this when a CBS number can't be found, which it usually does.
