@@ -16,7 +16,11 @@ To-do's
 
 Recent changes
 --------------
- *11-05-2013*
+*29-05-2013*
+* Fix bug where table head wasn't printed when no placenames were provided
+* Making it possible to manually put in the CBS-code when it isn't found in the db.
+
+*11-05-2013*
 * Zip codes are now retrieved from Google Maps queries when not already provided
 
 *03-05-2013*
