@@ -1,27 +1,31 @@
 <?php
 //Set up variables
-$table                = "leeuwarden"; // the name of the table in the DB
-$gemeente             = "Leeuwarden (gemeente)"; //name of the wikipedia article about the municipality
-$GLOBALS['provincie'] = "Friesland";
-$printOrder           = "ORDER BY plaats, adres ASC";
+$table                = "maasdriel"; // the name of the table in the DB
+$gemeente             = "Maasdriel"; //name of the wikipedia article about the municipality
+$GLOBALS['provincie'] = "Gelderland";
+
+$printOrder           = "ORDER BY plaats";
 
 ///set up column variables
 
-$column['plaats']       = 'plaats';        //plaats    (assumed to be one collumn)
+$column['plaats']       = '';        //plaats    (assumed to be one collumn)
 
 
-$column['object']       = "object" ;      //object
+$column['object']       = "object";      //object
 $column['bouwjaar']     = "";             //bouwjaar
 $column['architect']    = "";            //architect 
 $column['adres']        = "adres";  //adres    
-$column['postcode']     = "postcode";             //postcode   
-$column['kadaster']     = "";             //postcode   
-$column['orfunctie']    = "type_monument";    //oorspronkelijk functie
-$column['objnr']        = "registernr";                     //id nummer die de gemeente heeft toegewezen
+$column['postcode']     = "";             //postcode   
+$column['kadaster']     = "";             //kadaster   
+$column['orfunctie']    = "";  //oorspronkelijk functie
+$column['objnr']        = "monnr";     //id nummer die de gemeente heeft toegewezen
 $column['MIP_nr']       = ""; //MIP_nr    
 $column['rijksnr']      = ""; //rijksmonument nummer   
-$column['datum']        = Array("jaar", Array("-","maand"), Array("-", "dag")); //datum aangewezen
+$column['datum']        = ""; //datum aangewezen
 $column['url']          = ""; //URL
+
+//Only use this when a CBS number can't be found, which it usually does.
+$CBS_overwrite        = ""; 
 
 //Rijksdriehoek
 //sometimes, fairly rarely, rijksdriehoek-gegevens are provided

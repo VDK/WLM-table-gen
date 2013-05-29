@@ -46,20 +46,26 @@ if ($cities['gemeente'] != $GLOBALS['gemeente-naam']){
   setcookie("CityVarsCookie", serialize($cities), time()+3600);
 }
 
+  
 //select CBS-number
+$gemNummer = "";
 $result = mysqli_query($con, "SELECT gemcode FROM _cbs_nr WHERE gemeente LIKE '".$GLOBALS['gemeente-naam']."' AND provincie LIKE '".$GLOBALS['provincie']."'");
 while($row = mysqli_fetch_array($result)){
   $gemNummer =  $row['gemcode'];
 }
-if ($gemNummer  == NULL){
-  echo "<h1>CBS-number niet gevonden</h1>";
-  $gemNummer ="";
+if ($gemNummer  == ""){
+  if ($CBS_overwrite == ""){
+    echo '<h1>CBS-nummer is niet gevonden, stel de waarde van $CBS_overwrite in binnen 1-set_up_variables.php</h1>';
+    $gemNummer = "";
+  }
+  else {  
+    $gemNummer = $CBS_overwrite;
+  }
 }
 
 
 //select all the things
 $result = mysqli_query($con,"SELECT * FROM ".$table." ".$printOrder);
-
 //creating the actual table
 $i = 0;
 $previousPlace = "";
@@ -73,6 +79,9 @@ while($row = mysqli_fetch_array($result))
   }  
   if ($i ==0 && $j == 0){
     printHeader(mysqli_num_rows($result)); //create start of page
+    if ($column['plaats'] == ""){
+      echoTableHead();
+    }
   }
   if (($i >=$j*$pace && $i <$j*$pace+$pace) || $rijksdriehoek == true){
     if ($previousPlace != $plaats && $column['plaats'] != ""){
@@ -118,6 +127,7 @@ while($row = mysqli_fetch_array($result))
   $previousPlace = $plaats;
   $i++;
 }
+/* column values trickery */
   
 function getZIPcode($columname, $row, $googleMapsData) {
   $zip = getColumName($columname, $row);
@@ -143,7 +153,7 @@ function getObjnr($columname, $i, $row){
     return getColumName($columname, $row);
   }
 }
-
+//This function merges the columns in the MySQL table to fit in the columns of the WikiTable
 function getColumName($columname, $row){
   if ($columname == ""){
     return "";
@@ -161,13 +171,13 @@ function getColumName($columname, $row){
       }
       else if ($row[$columname[$i]] != ""){
        @$output.= $row[$columname[$i]];
-        
       }
     }
     return $output;
   }
 }
 
+/* geocoding functions */
  
 function getGoogleMapsData($address){
   $address = rawurlencode(normalizer($address));
@@ -197,7 +207,7 @@ function getGoogleMapsData($address){
     }  
   }
 }
-
+// changes é into e etc.. Because Google Maps is weird.
 function normalizer($original_string){
   $some_special_chars = array("á", "é", "í", "ó", "ú", "Á", "É", "Í", "Ó", "Ú", "ñ", "Ñ", "â", "Â", "ë", "Ë");
   $replacement_chars  = array("a", "e", "i", "o", "u", "A", "E", "I", "O", "U", "n", "N", "a", "A", "e", "E");
@@ -207,6 +217,29 @@ function normalizer($original_string){
   return $replaced_string; 
 }
 
+/* OK, I know this function is a bit dirty. 
+Because Google Maps doesn't let you ask for
+too many coordinates at once, the table has
+to be split up into pages. This function 
+both creates the button to got to the next page 
+and returns the number of the current page */
+function getPageCountAndPrintButton(){
+  ?>
+  <form method="get" style="-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+  <input type="hidden" name="j" value="<?php 
+  if (empty($_GET['j'])) {
+      echo 1;
+      $j=0;
+  }
+  else {
+    $j=$_GET['j'];
+    echo $j+1;
+  }
+  ?>"/><input type="submit" value=">next 10>"/>
+  </form>
+  <?php
+  return $j;
+}
 function rd2wgs ($x, $y)
 {
     // Calculate WGS84 coördinates
@@ -240,12 +273,20 @@ function rd2wgs ($x, $y)
         'lat' => $Latitude ,
         'long' => $Longitude);
 }
+
+/* END OF GEOCODING FUNCTIONS*/
+/* these functions write need to be altered if you want to use this script for something other than municipal monuments */
+
 function createTableStart($city, $count){
 $city= ucfirst($city);
 ?>
 ==<?php echo $city;?>==<br/>
 De plaats [[<?php echo $city;?>]] kent <?php echo $count; if ($count ==1){ echo " gemeentelijk monument";} else { echo " gemeentelijke monumenten";}?>:<br/>
-{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo getISO();?>|gemeente=[[<?php echo $GLOBALS['gemeente-artikel'];?>]]}}<br/>
+<?php
+echoTableHead();
+}
+function echoTableHead(){
+?>{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo getISO();?>|gemeente=[[<?php echo $GLOBALS['gemeente-artikel'];?>]]}}<br/>
 <?php
 }
 
@@ -298,24 +339,10 @@ $gem = $GLOBALS['gemeente-naam'];
 <?php
 }
 
+/* END OF MUNICIPAL MONUMENT SPECIFIC FUNCTIONS */
 
-function getPageCountAndPrintButton(){
-  ?>
-  <form method="get" style="-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
-  <input type="hidden" name="j" value="<?php 
-  if (empty($_GET['j'])) {
-      echo 1;
-      $j=0;
-  }
-  else {
-    $j=$_GET['j'];
-    echo $j+1;
-  }
-  ?>"/><input type="submit" value=">next 10>"/>
-  </form>
-  <?php
-  return $j;
-}
+
+
 function getISO($province = ""){
   if ($province ==""){
     $province = $GLOBALS['provincie'];
