@@ -10,6 +10,7 @@ To-do's
 -------
 * Making it possible to retrieve Cadastre data
 * Including MIP-database data
+* Using the {{[sorteer](http://nl.wikipedia.org/wiki/Sjabloon:Sorteer)}} template when there is a "circa" date
 * Eliminating ">next 10>" button
 * Determining what hamlet an adress is located in within the municipality - that'd be great
 * Getting geolocation through the Postcode API when zip codes have been provided
