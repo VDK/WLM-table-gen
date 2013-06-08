@@ -24,7 +24,6 @@ while($row = mysqli_fetch_array($result)){
     $affected_rows = $affected_rows + mysqli_affected_rows($con); 
   }
 }
-echo $affected_rows." rijen bijgewerkt, nu kan je <a href='3-build_table.php'>de tabel gaan genereren</a>.";
 
 function buildQuery($table, $columName, $replicant, $original){
   return "UPDATE ".$table." SET ".$columName."= REPLACE(".$columName.", '".$replicant."', '".$original."')";
@@ -32,4 +31,23 @@ function buildQuery($table, $columName, $replicant, $original){
 
 
 mysqli_close($con);  
+
+
 ?>
+<html>
+<head>
+<script type="text/javascript">
+<!--
+function delayer(){
+    window.location = "/includes/3-build_table.php"
+}
+//-->
+</script>
+</head>
+<body onLoad="setTimeout('delayer()', 1000)">
+<?php echo $affected_rows;?> rijen bijgewerkt, zometeen de tabel!<br/>
+(of <a href="/includes/3-build_table.php">klik hier</a>)
+
+</body>
+</html>
+

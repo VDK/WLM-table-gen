@@ -1,7 +1,8 @@
 <?php
 
 
-include_once('1-set_up_variables.php');
+include_once('../1-set_up_variables.php');
+include_once('mip.php');
 $pace = 10; //number of rows per page
 
 $GLOBALS['gemeente-artikel'] = $gemeente;
@@ -24,8 +25,8 @@ else {
 //get monument-count per place, and the center of town (because Google Maps sometimes sucks at reading addresses, and returns that instead)
 
 $cities['gemeente'] ="";
-if (isset( $_COOKIE["CityVarsCookie"])){
-  $cities = unserialize($_COOKIE["CityVarsCookie"]);
+if (isset( $_COOKIE["CityVars"])){
+  $cities = unserialize($_COOKIE["CityVars"]);
 }
 if ($cities['gemeente'] != $GLOBALS['gemeente-naam']){
   if ($column['plaats'] != ""){
@@ -43,7 +44,7 @@ if ($cities['gemeente'] != $GLOBALS['gemeente-naam']){
     $cities[$GLOBALS['gemeente-naam']] = Array ("coordinates" => getGoogleMapsData($GLOBALS['gemeente-naam'].", ".$GLOBALS['provincie']  )); 
   }
   $cities['gemeente'] = $GLOBALS['gemeente-naam'];
-  setcookie("CityVarsCookie", serialize($cities), time()+3600);
+  setcookie("CityVars", serialize($cities), time()+3600);
 }
 
   
@@ -75,7 +76,7 @@ while($row = mysqli_fetch_array($result))
     $plaats = $GLOBALS['gemeente-naam'];
   }
   else {
-    $plaats = $row[$column['plaats']];
+    $plaats = trim($row[$column['plaats']]);
   }  
   if ($i ==0 && $j == 0){
     printHeader(mysqli_num_rows($result)); //create start of page
@@ -85,40 +86,94 @@ while($row = mysqli_fetch_array($result))
   }
   if (($i >=$j*$pace && $i <$j*$pace+$pace) || $rijksdriehoek == true){
     if ($previousPlace != $plaats && $column['plaats'] != ""){
-      if ($j != 0 || $i != 0 ){ echo "|}<br/>";}  // closes previous table
+      if ($j != 0 || $i != 0 ){ tableClosure(); }  // closes previous table
       createTableStart($plaats, $cities[$plaats]['numMon']); //create start of table
     }
     //get coordinates
-    $adres = getColumName($column['adres'], $row);
+    //setting up basic results
+    $tableresults['object']     = getColumName($column['object'],     $row);
+    $tableresults['bouwjaar']   = getColumName($column['bouwjaar'],   $row);
+    $tableresults['architect']  = getColumName($column['architect'],  $row);
+    $tableresults['adres']      = getColumName($column['adres'],      $row);
+    $tableresults['postcode']   = getColumName($column['postcode'],   $row);
+    $tableresults['objnr']      = getColumName($column['objnr'],      $row);
+    $tableresults['MIP_nr']     = getColumName($column['MIP_nr'],     $row);
+    $tableresults['kadaster']   = getColumName($column['kadaster'],   $row);
+    $tableresults['rijksnr']    = getColumName($column['rijksnr'],    $row);
+    $tableresults['datum']      = getColumName($column['datum'],      $row);
+    $tableresults['orfunctie']  = getColumName($column['orfunctie'],  $row);
+    $tableresults['url']        = getColumName($column['url'],        $row);
+    $coordinates['lat'] ="";
+    $coordinates['long'] ="";
+    $mip = false;
+  
+    //Asking the MIP database
+    // $straat = trim(substr($tableresults['adres'],0,-2));
+    // $hnr = trim(mb_substr($tableresults['adres'],-2));
     
-    if ($rijksdriehoek != true){
-      $coordinates=getGoogleMapsData($adres.', '.$plaats.', The Netherlands');
+    
+    // $mipresults = mysqli_query($con,'SELECT * FROM _mip WHERE gemeente = "'.$GLOBALS['gemeente-naam'].'" AND straat = "'.$straat.'" AND hne = "'.$hnr.'" AND plaatsnaam = "'.$plaats.'";');
+    // if ($mipresults){
+      // while($row2 = mysqli_fetch_array($mipresults)) {
+        // ($tableresults['bouwjaar'] == "")? "": $tableresults['bouwjaar'] = $tableresults['bouwjaar'].", ";
+        // $tableresults['bouwjaar'] = $tableresults['bouwjaar'].$row2['datering_o']."&lt;ref name=MIP/&gt";
+        
+        
+        // ($tableresults['orfunctie'] == "")? "": $tableresults['orfunctie'] = $tableresults['orfunctie'].", ";
+        // $tableresults['orfunctie'] = $tableresults['orfunctie'].$row2['oorspr_fun'];
+        
+        // ($tableresults['architect'] == "")? "": $tableresults['architect'] = $tableresults['architect']."/ ";
+        // $tableresults['architect'] = $tableresults['architect'].$row2['architect'];
+        
+        // ($tableresults['object'] == "")?$tableresults['object'] = substr($row2['typesch_obj'],11)."" : "";
+        // ($row2['naam'] != "")? $tableresults['object'] = $tableresults['object']." ''".$row2['naam']."''" : "";
+        
+       // ($tableresults['postcode'] == "")? $tableresults['postcode']  = $row2['pc']: "";
+        
+        // $tableresults['MIP_nr'] = $row2['mip_sleute'];
+        // $coordinates =rd2wgs($row2["x_coord"],$row2["y_coord"]);
+        // $mip = true;
+      // }
+    // }  
+    
+    //getting Google Maps data
+    if ($rijksdriehoek == false && $mip == false){
+      $coordinates=getGoogleMapsData($tableresults['adres'].', '.$plaats.', The Netherlands');
       //test if the coordinates are any good
       if ($coordinates['lat']  == $cities[$plaats]['coordinates']['lat'] && $coordinates['long']  == $cities[$plaats]['coordinates']['long']) {
         $coordinates['lat'] = "";
         $coordinates['long'] = "";
       }
+      //if there isn't a zipcode already, fill it in.
+      elseif ($tableresults['postcode'] == ""){
+          $tableresults['postcode'] = $coordinates['zip'];
+      }
     }
-    else{
+    
+    //translating "rijksdriehoek-coordinates"
+    else if($rijksdriehoek == true && $mip == false){
       $coordinates=rd2wgs($row[$column["x"]],$row[$column["y"]]);
     }
+    
+    
     //build one row
     createRow(
-     getColumName($column['object'],    $row),        //object
-     getColumName($column['bouwjaar'],  $row),        //bouwjaar
-     getColumName($column['architect'], $row),        //architect
-     $adres,                                          //adres
-     getZIPcode($column['postcode'], $row, $coordinates),        //postcode
+     $tableresults['object'],        //object
+     $tableresults['bouwjaar'],        //bouwjaar
+     $tableresults['architect'],        //architect
+     $tableresults['adres'],            //adres
+     $tableresults['postcode'],        //postcode
      $coordinates['lat'],                             //lat
      $coordinates['long'],                            //long
      $gemNummer,                                      //gemcode
-     getObjnr($column['objnr'],   $i,   $row),        //objnr
-     getColumName($column['MIP_nr'],    $row),        //MIP_nr
-     getColumName($column['kadaster'],  $row),        //kadaste
-     getColumName($column['rijksnr'],   $row),        //rijksmonument nummer
-     getColumName($column['datum'],     $row),        //datum aangewezen
-     getColumName($column['orfunctie'], $row),        //oorspronkelijk doel van gebruik
-     getColumName($column['url'],       $row)         //bron URL
+     $tableresults['objnr'],        //objnr
+     $tableresults['MIP_nr'],        //MIP_nr
+     $tableresults['kadaster'],        //kadaste
+     $tableresults['rijksnr'],        //rijksmonument nummer
+     $tableresults['datum'],             //datum aangewezen
+     $tableresults['orfunctie'],        //oorspronkelijk doel van gebruik
+     $tableresults['url'] ,              //bron URL
+     $i //row count
     );
     if (($i+1) == mysqli_num_rows($result)){
       printFooter();
@@ -127,32 +182,8 @@ while($row = mysqli_fetch_array($result))
   $previousPlace = $plaats;
   $i++;
 }
-/* column values trickery */
   
-function getZIPcode($columname, $row, $googleMapsData) {
-  $zip = getColumName($columname, $row);
-  if ($zip == ""){
-    $zip = $googleMapsData['zip'];
-  }  
-  return $zip;  
-}
 
-function getObjnr($columname, $i, $row){
-  if ($columname == ""){
-    $label ="WN";
-    if (($i+1) <10){
-      $label .= "00";
-    }
-    elseif (($i+1) <100){
-      $label .= "0";
-    }
-    $label .= ($i+1);
-    return $label;
-  }
-  else{
-    return getColumName($columname, $row);
-  }
-}
 //This function merges the columns in the MySQL table to fit in the columns of the WikiTable
 function getColumName($columname, $row){
   if ($columname == ""){
@@ -176,7 +207,40 @@ function getColumName($columname, $row){
     return $output;
   }
 }
+// implements the {{sorteer}} template. Needs expanding so that stuff like "jaren '50" gets recognised
+function sortYear ($year){
+  if ($year != ""){
+    $yearparts = explode (" ", $year);
+    // look for 4 digit years
+    if (is_numeric(mb_substr($yearparts[0], 0,4))){
+      return $year;
+    }
+    for ($i = 1; $i < count($yearparts); $i++){
+      if (is_numeric(mb_substr($yearparts[$i],0,4))){
+        return "{{Sorteer|".mb_substr($yearparts[$i],0,4)."|".$year."}}";
+      }
+    }
+    //look for 2 digit century names
+    for ($i = 0; $i < count($yearparts); $i++){
+      if (is_numeric(mb_substr($yearparts[$i],0,2))){
+        return "{{Sorteer|".(mb_substr($yearparts[$i],0,2)-1)."00|".$year."}}";
+      }
+    }
+  }
+  return $year;
+}
 
+function getObjnr($i){
+  $label ="WN";
+  if (($i+1) <10){
+    $label .= "00";
+  }
+  elseif (($i+1) <100){
+    $label .= "0";
+  }
+  $label .= ($i+1);
+  return $label;
+}
 /* geocoding functions */
  
 function getGoogleMapsData($address){
@@ -274,72 +338,6 @@ function rd2wgs ($x, $y)
         'long' => $Longitude);
 }
 
-/* END OF GEOCODING FUNCTIONS*/
-/* these functions write need to be altered if you want to use this script for something other than municipal monuments */
-
-function createTableStart($city, $count){
-$city= ucfirst($city);
-?>
-==<?php echo $city;?>==<br/>
-De plaats [[<?php echo $city;?>]] kent <?php echo $count; if ($count ==1){ echo " gemeentelijk monument";} else { echo " gemeentelijke monumenten";}?>:<br/>
-<?php
-echoTableHead();
-}
-function echoTableHead(){
-?>{{Tabelkop gemeentelijke monumenten|prov-iso=<?php echo getISO();?>|gemeente=[[<?php echo $GLOBALS['gemeente-artikel'];?>]]}}<br/>
-<?php
-}
-
-function createRow($object, $bouwjaar, $architect,$adres,$postcode,$lat,$lon,$gemcode,$objnr,$MIP_nr,$kadaster,$rijksmonument,$aangewezen,$oorspr_fun,$url){
-?>
-{{Tabelrij gemeentelijk monument
-| object =<?php echo ucfirst($object);?>
-| bouwjaar =<?php echo $bouwjaar;?>
-| architect =<?php echo $architect;?>
-| adres =<?php echo $adres;?>
-| postcode =<?php echo $postcode;?>
-| lat =<?php echo $lat;?>
-| lon =<?php echo $lon;?>
-| objnr =<?php echo $objnr;?>
-| gemcode =<?php echo $gemcode;
- echo ($MIP_nr =="")? ""  : "|MIP_nr = $MIP_nr";
- echo ($kadaster=="")? "" : "| kadaster = $kadaster";?>
-| rijksmonument =<?php echo $rijksmonument;?>
-| aangewezen =<?php echo $aangewezen;?>
-| oorspr_fun =<?php echo $oorspr_fun;
- echo ($url=="")? "" : "| url = $url";?> 
-| commonscat=
-| image=
-}}
-<?php 
-
-echo "<br/>&lt;!-- --&gt;<br/>";
-}
-function printHeader($num_monuments){
-?>
-De [[Nederlandse gemeente|gemeente]] [[<?php echo ($GLOBALS['gemeente-artikel'] == $GLOBALS['gemeente-naam'] ?  $GLOBALS['gemeente-naam'] : $GLOBALS['gemeente-artikel']."||".$GLOBALS['gemeente-naam']);?>]] kent <?php echo $num_monuments; ?> gemeentelijke monumenten, hieronder een overzicht. 
-Zie ook de [[Lijst van rijksmonumenten in <?php echo $GLOBALS['gemeente-artikel']."|rijksmonumenten in ".$GLOBALS['gemeente-naam']."]].<br/>";
-
-
-}
-
-function printFooter(){
-$gem = $GLOBALS['gemeente-naam'];
-?>
-|}<br/>
-{{Commonscat|Gemeentelijke monumenten in <?php echo $gem."}}"; 
-?><br/>
-{{Appendix|2=*{{Citeer web|url= |titel=Monumenten |uitgever=[[<?php echo $GLOBALS['gemeente-artikel']."|"."Gemeente ".$gem;?>]]|formaat= |datum= |bezochtdatum=<?php echo date('j-M-Y');?>}}<br/>
-----<br/>
-{{references}}}}<br/>
-[[Categorie:<?php echo $gem;?>]]<br/>
-[[Categorie:Lijsten van gemeentelijke monumenten in <?php echo getProvinceCategoryName()."|".$gem;?>]]<br/>
-[[Categorie:Lijsten van gemeentelijke monumenten naar gemeente|<?php echo $gem; ?>]]
-<br/>&lt;!-- Deze lijst was gegenereerd met WLM-table-gen, zie het script op http://tinyurl.com/WLM-table-gen --&gt;
-<?php
-}
-
-/* END OF MUNICIPAL MONUMENT SPECIFIC FUNCTIONS */
 
 
 
