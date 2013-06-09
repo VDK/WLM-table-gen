@@ -2,7 +2,7 @@
 
 function printHeader($num_monuments = 0){
 ?>
-De [[Nederlandse gemeente|gemeente]] [[<?php echo ($GLOBALS['gemeente-artikel'] == $GLOBALS['gemeente-naam'] ?  $GLOBALS['gemeente-naam'] : $GLOBALS['gemeente-artikel']."||".$GLOBALS['gemeente-naam']);?>]] kent <?php echo $num_monuments; ?> [[gemeentelijk monument|gemeentelijke monumenten]], hieronder een overzicht. 
+De [[Nederlandse gemeente|gemeente]] [[<?php echo ($GLOBALS['gemeente-artikel'] == $GLOBALS['gemeente-naam'] ?  $GLOBALS['gemeente-naam'] : $GLOBALS['gemeente-artikel']."|".$GLOBALS['gemeente-naam']);?>]] kent <?php echo $num_monuments; ?> [[gemeentelijk monument|gemeentelijke monumenten]], hieronder een overzicht. 
 Zie ook de [[Lijst van rijksmonumenten in <?php echo $GLOBALS['gemeente-artikel']."|rijksmonumenten in ".$GLOBALS['gemeente-naam']."]].<br/>";
 
 
