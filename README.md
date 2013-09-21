@@ -6,15 +6,15 @@ It supplements this data with coordinates based on Google Maps' data and the mun
 
 [There is a step-by-step guide in Dutch on how to use this script](http://nl.wikipedia.org/wiki/Wikipedia:Wikiproject/Erfgoed/Nederlandse_Erfgoed_Inventarisatie/Gemeentelijke_monumenten/WLM-table-gen)
 
-To-do's
--------
-* Making it possible to retrieve Cadastre data
-* Including MIP-database data
-* Eliminating ">next 10>" button
-* Determining what hamlet an adress is located in within the municipality - that'd be great
-* Getting geolocation through the Postcode API when zip codes have been provided
+This version has been discontinued 
+----------------------------------
+in favor of the [WLM-table-gen-2](https://github.com/VDK/WLM-table-gen-2)
+_______________________________________________________________________________________________________________
 
-Recent changes
+
+
+
+Last changes
 --------------
 *08-06-2013*
 * Using the {{[sorteer](http://nl.wikipedia.org/wiki/Sjabloon:Sorteer)}} template when there is a "circa" date
